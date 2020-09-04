@@ -71,6 +71,25 @@ func main() {
 }
 ```
 
+## Benchmark
+
+```bash
+go test -bench=. -benchmem
+goos: darwin
+goarch: amd64
+pkg: github.com/noil/bitset
+BenchmarkBitsetAdd-4               	265514660	         4.45 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBitsetAddInt-4            	259977708	         4.66 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSliceAdd-4                	100000000	        43.1 ns/op	      65 B/op	       0 allocs/op
+BenchmarkMapAdd-4                  	121503525	        10.0 ns/op	      25 B/op	       0 allocs/op
+BenchmarkBitsetThreadSaveAdd-4     	12322563	        98.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBitsetTreadSaveAddInt-4   	12684298	        93.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSliceTreadSaveAdd-4       	21254306	        89.2 ns/op	     137 B/op	       0 allocs/op
+BenchmarkMapTreadSaveAdd-4         	17331967	        85.6 ns/op	      22 B/op	       0 allocs/op
+PASS
+ok  	github.com/noil/bitset	16.617s
+```
+
 License
 ----
 

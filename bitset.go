@@ -8,7 +8,12 @@ type Set struct {
 }
 
 // New creates a new Set, initially empty set structure
-func New(size uint) *Set {
+func New() *Set {
+	return NewWithSize(uintSize)
+}
+
+// NewWithSize creates a new Set with size, initially empty set structure
+func NewWithSize(size uint) *Set {
 	return &Set{
 		m: make([]uint, size/uintSize),
 	}
@@ -18,6 +23,26 @@ func New(size uint) *Set {
 func (s *Set) Add(x ...uint) {
 	for _, e := range x {
 		i, j := getIntegerAndRemainder(e)
+		if uint(len(s.m)) < i+1 {
+			size := uint(2)
+			if i > 0 {
+				size = i * 2
+			}
+			tmpM := make([]uint, size)
+			copy(tmpM, s.m)
+			s.m = tmpM
+		}
+		s.m[i] |= 1 << j
+	}
+}
+
+// AddInt adds elements to Set, if it is not present already
+func (s *Set) AddInt(x ...int) {
+	for _, e := range x {
+		if e < 0 {
+			continue
+		}
+		i, j := getIntegerAndRemainder(uint(e))
 		if uint(len(s.m)) < i+1 {
 			size := uint(2)
 			if i > 0 {
@@ -42,9 +67,39 @@ func (s *Set) Remove(x ...uint) {
 	}
 }
 
+// RemoveInt removes elements from Set, if it is present
+func (s *Set) RemoveInt(x ...int) {
+	for _, e := range x {
+		if e < 0 {
+			continue
+		}
+		i, j := getIntegerAndRemainder(uint(e))
+		if uint(len(s.m)) < i+1 {
+			return
+		}
+		s.m[i] &= ^(1 << j)
+	}
+}
+
 // Contains checks whether the value x is in the set Set
 func (s Set) Contains(x uint) bool {
 	i, j := getIntegerAndRemainder(x)
+	if uint(len(s.m)) < i+1 {
+		return false
+	}
+	if 1 == s.m[i]>>j&1 {
+		return true
+	}
+
+	return false
+}
+
+// ContainsInt checks whether the value x is in the set Set
+func (s Set) ContainsInt(x int) bool {
+	if x < 0 {
+		return false
+	}
+	i, j := getIntegerAndRemainder(uint(x))
 	if uint(len(s.m)) < i+1 {
 		return false
 	}
@@ -96,7 +151,7 @@ func (s *Set) Intersection(ss ...*Set) {
 
 // Difference makes the difference of set s with one or more set ss
 func (s *Set) Difference(ss ...*Set) {
-	tmp := New(s.Size())
+	tmp := NewWithSize(s.Size())
 	tmpM := make([]uint, s.Size())
 	copy(tmpM, s.m)
 	tmp.m = tmpM
@@ -104,7 +159,7 @@ func (s *Set) Difference(ss ...*Set) {
 	ss = append(ss, tmp)
 	for i := 0; i < len(ss); i++ {
 		for j := i + 1; j < len(ss); j++ {
-			tmp := New(ss[i].Size())
+			tmp := NewWithSize(ss[i].Size())
 			tmpM := make([]uint, s.Size())
 			copy(tmpM, ss[i].m)
 			tmp.m = tmpM

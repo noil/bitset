@@ -1,11 +1,12 @@
 package bitset
 
 import (
+	"sync"
 	"testing"
 )
 
 func TestBitsetThreadSaveContains(t *testing.T) {
-	set := NewThreadSave(SIZE)
+	set := NewThreadSaveWithSize(SIZE)
 	for i := uint(0); i < SIZE; i++ {
 		set.Add(i)
 	}
@@ -17,7 +18,7 @@ func TestBitsetThreadSaveContains(t *testing.T) {
 }
 
 func TestBitsetThreadSaveRemove(t *testing.T) {
-	set := NewThreadSave(SIZE)
+	set := NewThreadSaveWithSize(SIZE)
 	for i := uint(0); i < SIZE; i++ {
 		set.Add(i)
 	}
@@ -32,7 +33,7 @@ func TestBitsetThreadSaveRemove(t *testing.T) {
 }
 
 func TestBitsetThreadSaveEnumerate(t *testing.T) {
-	set := NewThreadSave(10)
+	set := NewThreadSaveWithSize(10)
 	for i := uint(0); i < 10; i++ {
 		if i%2 == 0 {
 			set.Add(i)
@@ -48,9 +49,9 @@ func TestBitsetThreadSaveEnumerate(t *testing.T) {
 }
 
 func TestBitThreadSavesetUnion(t *testing.T) {
-	a := NewThreadSave(15)
-	b := NewThreadSave(15)
-	c := NewThreadSave(15)
+	a := NewThreadSaveWithSize(15)
+	b := NewThreadSaveWithSize(15)
+	c := NewThreadSaveWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -71,9 +72,9 @@ func TestBitThreadSavesetUnion(t *testing.T) {
 }
 
 func TestBitsetThreadSaveIntersection(t *testing.T) {
-	a := NewThreadSave(15)
-	b := NewThreadSave(15)
-	c := NewThreadSave(15)
+	a := NewThreadSaveWithSize(15)
+	b := NewThreadSaveWithSize(15)
+	c := NewThreadSaveWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -83,7 +84,7 @@ func TestBitsetThreadSaveIntersection(t *testing.T) {
 	for i := uint(9); i < 19; i++ {
 		c.Add(i)
 	}
-	a.Intersection(c, b)
+	a.Intersection(b, c)
 	sum := uint(0)
 	for _, v := range a.Enumerate() {
 		sum += v
@@ -94,9 +95,9 @@ func TestBitsetThreadSaveIntersection(t *testing.T) {
 }
 
 func TestBitsetThreadSaveDifference(t *testing.T) {
-	a := NewThreadSave(15)
-	b := NewThreadSave(15)
-	c := NewThreadSave(15)
+	a := NewThreadSaveWithSize(15)
+	b := NewThreadSaveWithSize(15)
+	c := NewThreadSaveWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -113,5 +114,80 @@ func TestBitsetThreadSaveDifference(t *testing.T) {
 	}
 	if 58 != sum {
 		t.Errorf("Wants [0 1 2 3 4 15 16 17], gets %v", a.Enumerate())
+	}
+}
+
+func BenchmarkBitsetThreadSaveAdd(b *testing.B) {
+	size := uint(b.N)
+	set := NewThreadSaveWithSize(size)
+	go func() {
+		j := uint(0)
+		for n := 0; n < b.N; n++ {
+			set.Add(j)
+			j++
+		}
+	}()
+	j := uint(0)
+	for n := 0; n < b.N; n++ {
+		set.Add(j)
+		j++
+	}
+}
+func BenchmarkBitsetTreadSaveAddInt(b *testing.B) {
+	size := uint(b.N)
+	set := NewThreadSaveWithSize(size)
+	go func() {
+		j := 0
+		for n := 0; n < b.N; n++ {
+			set.AddInt(j)
+			j++
+		}
+	}()
+	j := 0
+	for n := 0; n < b.N; n++ {
+		set.AddInt(j)
+		j++
+	}
+}
+
+func BenchmarkSliceTreadSaveAdd(b *testing.B) {
+	size := uint(b.N)
+	sl := make([]uint, size)
+	mu := sync.Mutex{}
+	go func() {
+		j := uint(0)
+		for i := 0; i < b.N; i++ {
+			mu.Lock()
+			sl = append(sl, j)
+			mu.Unlock()
+			j++
+		}
+	}()
+	j := uint(0)
+	for i := 0; i < b.N; i++ {
+		mu.Lock()
+		sl = append(sl, j)
+		mu.Unlock()
+		j++
+	}
+}
+
+func BenchmarkMapTreadSaveAdd(b *testing.B) {
+	size := uint(b.N)
+	mp := make(map[uint]bool, size)
+	mu := sync.Mutex{}
+	go func() {
+		j := uint(0)
+		for i := 0; i < b.N; i++ {
+			mu.Lock()
+			mp[j] = true
+			mu.Unlock()
+		}
+	}()
+	j := uint(0)
+	for i := 0; i < b.N; i++ {
+		mu.Lock()
+		mp[j] = true
+		mu.Unlock()
 	}
 }

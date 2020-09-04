@@ -7,7 +7,7 @@ import (
 const SIZE = 5
 
 func TestBitsetContains(t *testing.T) {
-	set := New(SIZE)
+	set := NewWithSize(SIZE)
 	for i := uint(0); i < SIZE; i++ {
 		set.Add(i)
 	}
@@ -19,7 +19,7 @@ func TestBitsetContains(t *testing.T) {
 }
 
 func TestBitsetRemove(t *testing.T) {
-	set := New(SIZE)
+	set := NewWithSize(SIZE)
 	for i := uint(0); i < SIZE; i++ {
 		set.Add(i)
 	}
@@ -34,7 +34,7 @@ func TestBitsetRemove(t *testing.T) {
 }
 
 func TestBitsetEnumerate(t *testing.T) {
-	set := New(10)
+	set := NewWithSize(10)
 	for i := uint(0); i < 10; i++ {
 		if i%2 == 0 {
 			set.Add(i)
@@ -50,9 +50,9 @@ func TestBitsetEnumerate(t *testing.T) {
 }
 
 func TestBitsetUnion(t *testing.T) {
-	a := New(15)
-	b := New(15)
-	c := New(15)
+	a := NewWithSize(15)
+	b := NewWithSize(15)
+	c := NewWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -73,9 +73,9 @@ func TestBitsetUnion(t *testing.T) {
 }
 
 func TestBitsetIntersection(t *testing.T) {
-	a := New(15)
-	b := New(15)
-	c := New(15)
+	a := NewWithSize(15)
+	b := NewWithSize(15)
+	c := NewWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -96,9 +96,9 @@ func TestBitsetIntersection(t *testing.T) {
 }
 
 func TestBitsetDifference(t *testing.T) {
-	a := New(15)
-	b := New(15)
-	c := New(15)
+	a := NewWithSize(15)
+	b := NewWithSize(15)
+	c := NewWithSize(15)
 	for i := uint(0); i < 10; i++ {
 		a.Add(i)
 	}
@@ -120,24 +120,38 @@ func TestBitsetDifference(t *testing.T) {
 
 func BenchmarkBitsetAdd(b *testing.B) {
 	size := uint(b.N)
-	set := New(size)
-	for n := uint(0); n < uint(b.N); n++ {
-		set.Add(n)
+	set := NewWithSize(size)
+	j := uint(0)
+	for n := 0; n < b.N; n++ {
+		set.Add(j)
+		j++
+	}
+}
+func BenchmarkBitsetAddInt(b *testing.B) {
+	size := uint(b.N)
+	set := NewWithSize(size)
+	j := 0
+	for n := 0; n < b.N; n++ {
+		set.AddInt(j)
+		j++
 	}
 }
 
 func BenchmarkSliceAdd(b *testing.B) {
 	size := uint(b.N)
 	sl := make([]uint, size)
-	for n := uint(0); n < uint(b.N); n++ {
-		sl = append(sl, n)
+	j := uint(0)
+	for i := 0; i < b.N; i++ {
+		sl = append(sl, j)
+		j++
 	}
 }
 
 func BenchmarkMapAdd(b *testing.B) {
 	size := uint(b.N)
 	mp := make(map[uint]bool, size)
-	for n := uint(0); n < uint(b.N); n++ {
-		mp[n] = true
+	j := uint(0)
+	for i := 0; i < b.N; i++ {
+		mp[j] = true
 	}
 }

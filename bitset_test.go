@@ -119,17 +119,20 @@ func TestBitsetDifference(t *testing.T) {
 }
 
 func BenchmarkBitsetAdd(b *testing.B) {
-	size := uint(b.N)
-	set := NewWithSize(size)
+	// size := uint(b.N)
+	// set := NewWithSize(size)
+	set := New()
 	j := uint(0)
 	for n := 0; n < b.N; n++ {
 		set.Add(j)
 		j++
 	}
 }
+
 func BenchmarkBitsetAddInt(b *testing.B) {
-	size := uint(b.N)
-	set := NewWithSize(size)
+	// size := uint(b.N)
+	// set := NewWithSize(size)
+	set := New()
 	j := 0
 	for n := 0; n < b.N; n++ {
 		set.AddInt(j)
@@ -138,8 +141,9 @@ func BenchmarkBitsetAddInt(b *testing.B) {
 }
 
 func BenchmarkSliceAdd(b *testing.B) {
-	size := uint(b.N)
-	sl := make([]uint, size)
+	// size := uint(b.N)
+	// sl := make([]uint, size)
+	sl := []uint{}
 	j := uint(0)
 	for i := 0; i < b.N; i++ {
 		sl = append(sl, j)
@@ -148,8 +152,9 @@ func BenchmarkSliceAdd(b *testing.B) {
 }
 
 func BenchmarkMapAdd(b *testing.B) {
-	size := uint(b.N)
-	mp := make(map[uint]bool, size)
+	// size := uint(b.N)
+	// mp := make(map[uint]bool, size)
+	mp := map[uint]bool{}
 	j := uint(0)
 	for i := 0; i < b.N; i++ {
 		mp[j] = true

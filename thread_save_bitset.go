@@ -7,7 +7,7 @@ import (
 // ThreadSaveSet a set of unsigned interger which store unique values, without any particular order
 type ThreadSaveSet struct {
 	set *Set
-	mu  sync.RWMutex
+	mu  *sync.RWMutex
 }
 
 // NewThreadSave creates a new ThreadSaveSet, initially empty set structure
@@ -21,7 +21,7 @@ func NewThreadSaveWithSize(size uint) *ThreadSaveSet {
 		set: &Set{
 			m: make([]uint, size/uintSize),
 		},
-		mu: sync.RWMutex{},
+		mu: &sync.RWMutex{},
 	}
 }
 

@@ -18,6 +18,18 @@ func TestBitsetContains(t *testing.T) {
 	}
 }
 
+func TestBitsetContains64(t *testing.T) {
+	set := NewWithSize(SIZE)
+	for i := int64(0); i < SIZE; i++ {
+		set.AddInt64(i)
+	}
+	for n := uint(0); n < SIZE; n++ {
+		if !set.Contains(n) {
+			t.Errorf("Value %d not found.", n)
+		}
+	}
+}
+
 func TestBitsetRemove(t *testing.T) {
 	set := NewWithSize(SIZE)
 	for i := uint(0); i < SIZE; i++ {
@@ -136,6 +148,17 @@ func BenchmarkBitsetAddInt(b *testing.B) {
 	j := 0
 	for n := 0; n < b.N; n++ {
 		set.AddInt(j)
+		j++
+	}
+}
+
+func BenchmarkBitsetAddInt64(b *testing.B) {
+	// size := uint(b.N)
+	// set := NewWithSize(size)
+	set := New()
+	j := int64(0)
+	for n := 0; n < b.N; n++ {
+		set.AddInt64(j)
 		j++
 	}
 }

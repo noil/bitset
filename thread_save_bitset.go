@@ -39,6 +39,13 @@ func (s *ThreadSaveSet) AddInt(x ...int) {
 	s.set.AddInt(x...)
 }
 
+// AddInt64 adds elements to ThreadSaveSet, if it is not present already
+func (s *ThreadSaveSet) AddInt64(x ...int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.set.AddInt64(x...)
+}
+
 // Remove removes elements from ThreadSaveSet, if it is present
 func (s *ThreadSaveSet) Remove(x ...uint) {
 	s.mu.Lock()
@@ -53,6 +60,13 @@ func (s *ThreadSaveSet) RemoveInt(x ...int) {
 	s.set.RemoveInt(x...)
 }
 
+// RemoveInt64 removes elements from ThreadSaveSet, if it is present
+func (s *ThreadSaveSet) RemoveInt64(x ...int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.set.RemoveInt64(x...)
+}
+
 // Contains checks whether the value x is in the set ThreadSaveSet
 func (s ThreadSaveSet) Contains(x uint) bool {
 	s.mu.RLock()
@@ -65,6 +79,13 @@ func (s ThreadSaveSet) ContainsInt(x int) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.set.ContainsInt(x)
+}
+
+// ContainsInt64 checks whether the value x is in the set ThreadSaveSet
+func (s ThreadSaveSet) ContainsInt64(x int64) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.set.ContainsInt64(x)
 }
 
 // Enumerate returns an array of all values from ThreadSaveSet

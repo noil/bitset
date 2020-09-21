@@ -38,22 +38,26 @@ func (s *Set) Add(x ...uint) {
 
 // AddInt adds elements to Set, if it is not present already
 func (s *Set) AddInt(x ...int) {
+	y := []uint{}
 	for _, e := range x {
 		if e < 0 {
 			continue
 		}
-		i, j := getIntegerAndRemainder(uint(e))
-		if uint(len(s.m)) < i+1 {
-			size := uint(2)
-			if i > 0 {
-				size = i * 2
-			}
-			tmpM := make([]uint, size)
-			copy(tmpM, s.m)
-			s.m = tmpM
-		}
-		s.m[i] |= 1 << j
+		y = append(y, uint(e))
 	}
+	s.Add(y...)
+}
+
+// AddInt64 adds elements to Set, if it is not present already
+func (s *Set) AddInt64(x ...int64) {
+	y := []uint{}
+	for _, e := range x {
+		if e < 0 {
+			continue
+		}
+		y = append(y, uint(e))
+	}
+	s.Add(y...)
 }
 
 // Remove removes elements from Set, if it is present
@@ -69,15 +73,23 @@ func (s *Set) Remove(x ...uint) {
 
 // RemoveInt removes elements from Set, if it is present
 func (s *Set) RemoveInt(x ...int) {
+	y := []uint{}
 	for _, e := range x {
 		if e < 0 {
 			continue
 		}
-		i, j := getIntegerAndRemainder(uint(e))
-		if uint(len(s.m)) < i+1 {
-			return
+		y = append(y, uint(e))
+	}
+}
+
+// RemoveInt64 removes elements from Set, if it is present
+func (s *Set) RemoveInt64(x ...int64) {
+	y := []uint{}
+	for _, e := range x {
+		if e < 0 {
+			continue
 		}
-		s.m[i] &= ^(1 << j)
+		y = append(y, uint(e))
 	}
 }
 
@@ -99,15 +111,15 @@ func (s Set) ContainsInt(x int) bool {
 	if x < 0 {
 		return false
 	}
-	i, j := getIntegerAndRemainder(uint(x))
-	if uint(len(s.m)) < i+1 {
+	return s.Contains(uint(x))
+}
+
+// ContainsInt64 checks whether the value x is in the set Set
+func (s Set) ContainsInt64(x int64) bool {
+	if x < 0 {
 		return false
 	}
-	if 1 == s.m[i]>>j&1 {
-		return true
-	}
-
-	return false
+	return s.Contains(uint(x))
 }
 
 // IsEmpty checks whether the set Set is empty
